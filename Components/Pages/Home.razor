@@ -1,7 +1,267 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Simple Calculator</h1>
 
-Welcome to your new app.
+
+
+<div class="calculator">
+    <div class="input" id="input">@calcStr</div>
+    <div class="buttons">
+        <div class="operators" @onclick="() => number1.numEntered = true">
+            <div @onclick="() => number1.operation = '+'">+</div>
+            <div @onclick="() => number1.operation = '-'">-</div>
+            <div @onclick="() => number1.operation = '×'">&times;</div>
+            <div @onclick="() => number1.operation = '÷'">&divide;</div>
+        </div>
+        <div class="leftPanel">
+            <div class="numbers">
+                <div @onclick="() => MakeNumber(7)">7</div>
+                <div @onclick="() => MakeNumber(8)">8</div>
+                <div @onclick="() => MakeNumber(9)">9</div>
+            </div>
+            <div class="numbers">
+                <div @onclick="() => MakeNumber(4)">4</div>
+                <div @onclick="() => MakeNumber(5)">5</div>
+                <div @onclick="() => MakeNumber(6)">6</div>
+            </div>
+            <div class="numbers">
+                <div @onclick="() => MakeNumber(1)">1</div>
+                <div @onclick="() => MakeNumber(2)">2</div>
+                <div @onclick="() => MakeNumber(3)">3</div>
+            </div>
+            <div class="numbers">
+                <div @onclick="() => MakeNumber(0)">0</div>
+                <div @onclick="() => MakeNumber(-1)">.</div>
+                <div id="clear" @onclick="EraseNumber">C</div>
+            </div>
+        </div>
+        <div class="equal" id="result" @onclick="@(() => { number2.numEntered = true; CompleteNo2(); GetResult(); })">=</div>
+                                                                                              </div>
+</div>
+
+@code{
+
+
+    Calculation number1 = new Calculation();
+    Calculation number2 = new Calculation();
+    public string calcStr = "";
+
+    void GetResult()
+    {
+        switch ((int)number1.operation)
+        {
+                //+
+                case 43:
+                    calcStr = (number1.numberVal + number2.numberVal).ToString("N4");
+                    break;
+                    //-
+                case 45:
+                    calcStr = (number1.numberVal - number2.numberVal).ToString("N4");
+                    break;
+                    //×
+                case 215:
+                    calcStr = (number1.numberVal * number2.numberVal).ToString("N4");
+                    break;
+                    //÷
+                case 247:
+                    calcStr = (number1.numberVal / number2.numberVal).ToString("N4");
+                    if (calcStr.Length > 12)
+                    {
+                        calcStr = calcStr.Substring(0, 8);
+                    }
+                    break;
+                    default:
+                        calcStr = "Error!";
+                        break;
+                
+                    
+        }
+        if (calcStr.Length > 14 && (number1.IsDecimal || number2.IsDecimal))
+        {
+            calcStr = "Too big!";
+        }
+        
+    }
+
+    void CompleteNo2()
+    {
+        if (number2.numEntered)
+        {
+            number2.numberVal = Convert.ToDouble(number2.numberStr);
+        }
+    }
+    
+    void EraseNumber()
+    {
+        number1.Erase();
+        number2.Erase();
+        calcStr = "";
+    }
+    
+    void MakeNumber(int num)
+    {
+        if (number1.numEntered && number2.numEntered)
+        {
+            EraseNumber();
+        }
+        if (number1.numEntered)
+        {
+            number1.numberVal = Convert.ToDouble(number1.numberStr);
+            number2.AddNum(num);
+            calcStr = number1.operation + number2.numberStr;
+        }
+        else
+        {
+            number1.AddNum(num);
+            calcStr = number1.numberStr;
+        }
+        
+    }
+    
+    /*void Clicked()
+    {
+        Console.WriteLine($"Number1.numEntered :{number1.numEntered}");
+        Console.WriteLine($"Number1.numberStr :{number1.numberStr}");
+        Console.WriteLine($"Number1.numVal :{number1.numberVal}");
+        Console.WriteLine($"Number1.operation :{number1.operation}");
+        Console.WriteLine($"Number2 is finished? :{number2.numEntered}");
+        Console.WriteLine($"Number2.numberStr :{number2.numberStr}");
+        Console.WriteLine($"Number2.numVal :{number2.numberVal}");
+        Console.WriteLine("<________________________________>");
+    }*/
+        
+}
+
+
+
+<style>
+
+    body {
+        width: 500px;
+        margin: 4% auto;
+        font-family: 'Source Sans Pro', sans-serif;
+        letter-spacing: 5px;
+        font-size: 1.8rem;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+
+    .calculator {
+        padding: 20px;
+        -webkit-box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+        border-radius: 1px;
+    }
+
+    .input {
+        border: 1px solid #ddd;
+        border-radius: 1px;
+        height: 60px;
+        padding-right: 15px;
+        padding-top: 10px;
+        text-align: right;
+        margin-right: 6px;
+        font-size: 2.5rem;
+        overflow-x: auto;
+        transition: all .2s ease-in-out;
+    }
+
+    .input:hover {
+        border: 1px solid #bbb;
+        -webkit-box-shadow: inset 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+    }
+
+    .buttons {}
+
+    .operators {}
+
+    .operators div {
+        display: inline-block;
+        border: 1px solid #bbb;
+        border-radius: 1px;
+        width: 80px;
+        text-align: center;
+        padding: 10px;
+        margin: 20px 4px 10px 0;
+        cursor: pointer;
+        background-color: #ddd;
+        transition: border-color .2s ease-in-out, background-color .2s, box-shadow .2s;
+    }
+
+    .operators div:hover {
+        background-color: #ddd;
+        -webkit-box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+        border-color: #aaa;
+    }
+
+    .operators div:active {
+        font-weight: bold;
+    }
+
+    .leftPanel {
+        display: inline-block;
+    }
+
+    .numbers div {
+        display: inline-block;
+        border: 1px solid #ddd;
+        border-radius: 1px;
+        width: 80px;
+        text-align: center;
+        padding: 10px;
+        margin: 10px 4px 10px 0;
+        cursor: pointer;
+        background-color: #f9f9f9;
+        transition: border-color .2s ease-in-out, background-color .2s, box-shadow .2s;
+    }
+
+    .numbers div:hover {
+        background-color: #f1f1f1;
+        -webkit-box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+        border-color: #bbb;
+    }
+
+    .numbers div:active {
+        font-weight: bold;
+    }
+
+    div.equal {
+        display: inline-block;
+        border: 1px solid #3079ED;
+        border-radius: 1px;
+        width: 17%;
+        text-align: center;
+        padding: 127px 10px;
+        margin: 10px 6px 10px 0;
+        vertical-align: top;
+        cursor: pointer;
+        color: #FFF;
+        background-color: #4d90fe;
+        transition: all .2s ease-in-out;
+    }
+
+    div.equal:hover {
+        background-color: #307CF9;
+        -webkit-box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
+        border-color: #1857BB;
+    }
+
+    div.equal:active {
+        font-weight: bold;
+    }
+</style>
+
+
+
+
+
+
+
